@@ -8,7 +8,7 @@ module.exports = async function (req, res, next) {
       return res.json({ error: "Captcha verification failed: token missing" });
     }
 
-    const secretKey = "6Ld0rBEsAAAAAOA6nEuY9byXXk34y9a76YfC1HMf"; // ❗ Thay bằng SECRET KEY của bạn
+    const secretKey = "6Lf6oxosAAAAAIQD8LL8Fo4Fdsysk63P2WORxTeFc"; // ❗ Thay bằng SECRET KEY của bạn
 
     const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captchaToken}`;
     const { data } = await axios.post(url);
