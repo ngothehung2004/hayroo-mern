@@ -34,24 +34,41 @@ const Signup = (props) => {
       specialChar: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
     });
   };
-  const formSubmit = async () => {
-    setData({ ...data, loading: true });
+  const formSubmit = async (e) => {
+    e && e.preventDefault();
+
+    if (data.loading) return;
+
+    setData({ ...data, loading: true, success: false, error: {} });
+
     if (data.cPassword !== data.password) {
-      return setData({
+      setData({
         ...data,
+        loading: false,
         error: {
           cPassword: "Password doesn't match",
           password: "Password doesn't match",
         },
       });
+      return;
     }
+
     try {
-      let responseData = await signupReq({
+      const responseData = await signupReq({
         name: data.name,
         email: data.email,
         password: data.password,
         cPassword: data.cPassword,
       });
+
+      if (!responseData) {
+        setData({ ...data, loading: false });
+        enqueueSnackbar("Không thể kết nối tới máy chủ. Vui lòng thử lại!", {
+          variant: "error",
+        });
+        return;
+      }
+
       if (responseData.error) {
         setData({
           ...data,
@@ -69,18 +86,20 @@ const Signup = (props) => {
           cPassword: "",
           loading: false,
           error: false,
-        })
-        enqueueSnackbar('Account Created Successfully..!', { variant: 'success' })
+        });
+        enqueueSnackbar("Account Created Successfully..!", { variant: "success" });
       }
     } catch (error) {
       console.log(error);
+      setData({ ...data, loading: false });
+      enqueueSnackbar("Đăng ký thất bại, vui lòng thử lại!", { variant: "error" });
     }
   };
 
   return (
     <Fragment>
       <div className="text-center text-2xl mb-6">Register</div>
-      <form className="space-y-4">
+      <form className="space-y-4" onSubmit={formSubmit}>
         {data.success ? alert(data.success, "green") : ""}
         <div className="flex flex-col">
           <label htmlFor="name">
@@ -212,13 +231,16 @@ const Signup = (props) => {
             Lost your password?
           </a>
         </div>
-        <div
-          onClick={(e) => formSubmit()}
+        <button
+          type="submit"
+          disabled={data.loading}
           style={{ background: "#303031" }}
-          className="px-4 py-2 text-white text-center cursor-pointer font-medium"
+          className={`px-4 py-2 text-white text-center font-medium ${
+            data.loading ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
+          }`}
         >
-          Create an account
-        </div>
+          {data.loading ? "Processing..." : "Create an account"}
+        </button>
       </form>
     </Fragment>
   );
