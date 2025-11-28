@@ -36,3 +36,43 @@ exports.phoneNumberCheckInDatabase = async function (phoneNumber) {
     }
   });
 };
+
+/**
+ * Validate mật khẩu mạnh
+ * Yêu cầu: 
+ * - Ít nhất 8 ký tự
+ * - Có ít nhất 1 chữ hoa
+ * - Có ít nhất 1 chữ thường
+ * - Có ít nhất 1 số
+ * - Có ít nhất 1 ký tự đặc biệt
+ */
+exports.validateStrongPassword = function (password) {
+  const minLength = 8;
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumbers = /\d/.test(password);
+  const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+  
+  const errors = [];
+  
+  if (password.length < minLength) {
+    errors.push(`Mật khẩu phải có ít nhất ${minLength} ký tự`);
+  }
+  if (!hasUpperCase) {
+    errors.push("Mật khẩu phải có ít nhất 1 chữ hoa (A-Z)");
+  }
+  if (!hasLowerCase) {
+    errors.push("Mật khẩu phải có ít nhất 1 chữ thường (a-z)");
+  }
+  if (!hasNumbers) {
+    errors.push("Mật khẩu phải có ít nhất 1 số (0-9)");
+  }
+  if (!hasSpecialChar) {
+    errors.push("Mật khẩu phải có ít nhất 1 ký tự đặc biệt (!@#$%^&*)");
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+};

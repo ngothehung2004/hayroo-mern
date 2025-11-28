@@ -5,12 +5,20 @@ const userModel = require("../models/users");
 exports.loginCheck = (req, res, next) => {
   try {
     let token = req.headers.token;
-    token = token.replace("Bearer ", "");
-    decode = jwt.verify(token, JWT_SECRET);
+    if (!token) {
+      return res.status(401).json({
+        error: "You must be logged in",
+      });
+    }
+    // Remove "Bearer " prefix if present
+    if (token.startsWith("Bearer ")) {
+      token = token.replace("Bearer ", "");
+    }
+    const decode = jwt.verify(token, JWT_SECRET);
     req.userDetails = decode;
     next();
   } catch (err) {
-    res.json({
+    return res.status(401).json({
       error: "You must be logged in",
     });
   }

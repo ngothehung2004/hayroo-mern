@@ -2,7 +2,6 @@ import React, { Fragment } from "react";
 
 import AdminNavber from "../partials/AdminNavber";
 import AdminSidebar from "../partials/AdminSidebar";
-import AdminFooter from "../partials/AdminFooter";
 
 const AdminLayout = ({ children }) => {
   return (
@@ -15,7 +14,6 @@ const AdminLayout = ({ children }) => {
           {children}
         </div>
       </section>
-      <AdminFooter />
     </Fragment>
   );
 };

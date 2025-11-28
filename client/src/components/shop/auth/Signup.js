@@ -11,11 +11,29 @@ const Signup = (props) => {
     loading: false,
     success: false,
   });
+  const [passwordStrength, setPasswordStrength] = useState({
+    length: false,
+    upperCase: false,
+    lowerCase: false,
+    number: false,
+    specialChar: false,
+  });
 
   const alert = (msg, type) => (
     <div className={`text-sm text-${type}-500`}>{msg}</div>
   );
   const { enqueueSnackbar } = useSnackbar();
+
+  // Validate password strength
+  const validatePasswordStrength = (password) => {
+    setPasswordStrength({
+      length: password.length >= 8,
+      upperCase: /[A-Z]/.test(password),
+      lowerCase: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      specialChar: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
+    });
+  };
   const formSubmit = async () => {
     setData({ ...data, loading: true });
     if (data.cPassword !== data.password) {
@@ -113,14 +131,16 @@ const Signup = (props) => {
             Password<span className="text-sm text-gray-600 ml-1">*</span>
           </label>
           <input
-            onChange={(e) =>
+            onChange={(e) => {
+              const newPassword = e.target.value;
+              validatePasswordStrength(newPassword);
               setData({
                 ...data,
                 success: false,
                 error: {},
-                password: e.target.value,
-              })
-            }
+                password: newPassword,
+              });
+            }}
             value={data.password}
             type="password"
             id="password"
@@ -129,6 +149,30 @@ const Signup = (props) => {
             } px-4 py-2 focus:outline-none border`}
           />
           {!data.error ? "" : alert(data.error.password, "red")}
+          
+          {/* Password Strength Indicator */}
+          {data.password && (
+            <div className="mt-2 p-3 bg-gray-50 rounded text-xs">
+              <p className="font-semibold mb-2">Yêu cầu mật khẩu mạnh:</p>
+              <ul className="space-y-1">
+                <li className={passwordStrength.length ? "text-green-600" : "text-gray-500"}>
+                  {passwordStrength.length ? "✓" : "○"} Ít nhất 8 ký tự
+                </li>
+                <li className={passwordStrength.upperCase ? "text-green-600" : "text-gray-500"}>
+                  {passwordStrength.upperCase ? "✓" : "○"} Có chữ hoa (A-Z)
+                </li>
+                <li className={passwordStrength.lowerCase ? "text-green-600" : "text-gray-500"}>
+                  {passwordStrength.lowerCase ? "✓" : "○"} Có chữ thường (a-z)
+                </li>
+                <li className={passwordStrength.number ? "text-green-600" : "text-gray-500"}>
+                  {passwordStrength.number ? "✓" : "○"} Có số (0-9)
+                </li>
+                <li className={passwordStrength.specialChar ? "text-green-600" : "text-gray-500"}>
+                  {passwordStrength.specialChar ? "✓" : "○"} Có ký tự đặc biệt (!@#$%^&*)
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
         <div className="flex flex-col">
           <label htmlFor="cPassword">

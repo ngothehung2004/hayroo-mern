@@ -9,8 +9,8 @@ export const isAdmin = () =>
     ? JSON.parse(localStorage.getItem("jwt")).user.role === 1
     : false;
 
-export const loginReq = async ({ email, password }) => {
-  const data = { email, password };
+export const loginReq = async ({ email, password, captchaToken }) => {
+  const data = { email, password, captchaToken };
   try {
     let res = await axios.post(`${apiURL}/api/signin`, data);
     return res.data;

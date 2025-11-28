@@ -1,5 +1,5 @@
 import React, { Fragment, createContext, useReducer, useEffect } from "react";
-import { Navber, Footer, CartModal } from "../partials";
+import { Navber, CartModal } from "../partials";
 import Sidebar from "./Sidebar";
 import {
   dashboardUserState,
@@ -28,7 +28,6 @@ const Layout = ({ children }) => {
             {children}
           </div>
         </div>
-        <Footer />
       </DashboardUserContext.Provider>
     </Fragment>
   );

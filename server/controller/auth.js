@@ -1,4 +1,4 @@
-const { toTitleCase, validateEmail } = require("../config/function");
+const { toTitleCase, validateEmail, validateStrongPassword } = require("../config/function");
 const bcrypt = require("bcryptjs");
 const userModel = require("../models/users");
 const jwt = require("jsonwebtoken");
@@ -41,13 +41,26 @@ class Auth {
     if (name.length < 3 || name.length > 25) {
       error = { ...error, name: "Name must be 3-25 charecter" };
       return res.json({ error });
-    } else {
-      if (validateEmail(email)) {
+      } else {
+        if (validateEmail(email)) {
         name = toTitleCase(name);
-        if ((password.length > 255) | (password.length < 8)) {
+        
+        // Validate mật khẩu mạnh
+        const passwordValidation = validateStrongPassword(password);
+        if (!passwordValidation.isValid) {
           error = {
             ...error,
-            password: "Password must be 8 charecter",
+            password: passwordValidation.errors.join(". "),
+            name: "",
+            email: "",
+          };
+          return res.json({ error });
+        }
+        
+        if (password.length > 255) {
+          error = {
+            ...error,
+            password: "Password must be less than 255 characters",
             name: "",
             email: "",
           };
@@ -117,15 +130,28 @@ class Auth {
       } else {
         const login = await bcrypt.compare(password, data.password);
         if (login) {
-          const token = jwt.sign(
-            { _id: data._id, role: data.userRole },
-            JWT_SECRET
-          );
-          const encode = jwt.verify(token, JWT_SECRET);
-          return res.json({
-            token: token,
-            user: encode,
-          });
+          // Kiểm tra nếu user đã enable MFA (xử lý cả string và boolean)
+          const isVerified = data.verified === true || data.verified === "true" || String(data.verified || "").toLowerCase() === "true";
+          if (isVerified && data.secretKey) {
+            // Yêu cầu MFA verification
+            return res.json({
+              requiresMFA: true,
+              userId: data._id,
+              message: "MFA verification required"
+            });
+          } else {
+            // Login bình thường nếu chưa enable MFA
+            const token = jwt.sign(
+              { _id: data._id, role: data.userRole },
+              JWT_SECRET
+            );
+            const encode = jwt.verify(token, JWT_SECRET);
+            return res.json({
+              token: token,
+              user: encode,
+              requiresMFA: false
+            });
+          }
         } else {
           return res.json({
             error: "Invalid email or password",
