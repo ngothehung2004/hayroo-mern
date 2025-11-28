@@ -10,7 +10,7 @@ const generateCaptcha = () => {
   return Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
 };
 
-const SITE_KEY = "6Ld0rBEsAAAAAMIVhg3XRtkusoiG2xkCfZl2og6B"; // ❗ THAY BẰNG SITE KEY CỦA BẠN
+const SITE_KEY = "6Lf6oxosAAAAAMxqmjjfhPZpylsgahtfqCNFV5_Y"; // ❗ THAY BẰNG SITE KEY CỦA BẠN
 
 const Login = (props) => {
   const { data: layoutData, dispatch: layoutDispatch } = useContext(LayoutContext);
